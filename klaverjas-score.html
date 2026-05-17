@@ -8,7 +8,6 @@
         :root {
             --primary-color: #2c3e50;
             --wij-color: #27ae60;
-            --common-color: #333333;
             --zij-color: #2980b9;
             --bg-color: #f5f7fa;
             --danger-color: #e74c3c;
@@ -70,7 +69,7 @@
 
         .input-row {
             display: flex;
-            gap: 25px;
+            gap: 15px;
             margin-bottom: 15px;
         }
 
@@ -81,7 +80,6 @@
         }
 
         .input-group.wij label { color: var(--wij-color); font-weight: bold; }
-        .input-group.common label { color: var(--common-color); font-weight: bold;}
         .input-group.zij label { color: var(--zij-color); font-weight: bold; }
 
         label {
@@ -136,8 +134,6 @@
         
         .wij .btn-roem { color: var(--wij-color); border-color: #a7f3d0; }
         .wij .btn-roem:active { background-color: #d1fae5; }
-        
-        .common { flex: 0 0 15em; }
         
         .zij .btn-roem { color: var(--zij-color); border-color: #bfdbfe; }
         .zij .btn-roem:active { background-color: #dbeafe; }
@@ -208,7 +204,7 @@
 </head>
 <body>
 
-    <h2>🃏 Klaverjas Score</h2>
+    <h2>🃏 Klaverjas Teller</h2>
 
     <!-- Totaalstand -->
     <div class="score-header">
@@ -240,11 +236,6 @@
                     <button type="button" class="btn-roem" onclick="voegRoemToe('wij', 50)">+50</button>
                     <button type="button" class="btn-roem" onclick="voegRoemToe('wij', 100)">+100</button>
                 </div>
-            </div>
-            
-            <div class="input-group common">
-	            <label for="cb-schoppen">Schoppen troef</label>
-                <input type="checkbox" id="cb-schoppen">
             </div>
             
             <!-- ZIJ INVOER -->
@@ -330,20 +321,13 @@
 		}
 
         function voegRondeToe() {
-        	let dubbelePunten = (document.getElementById('cb-schoppen').checked) || false;
             let pntWij = parseInt(document.getElementById('score-wij').value) || 0;
             let roemWij = parseInt(document.getElementById('roem-wij').value) || 0;
             let pntZij = parseInt(document.getElementById('score-zij').value) || 0;
             let roemZij = parseInt(document.getElementById('roem-zij').value) || 0;
 
-
             let totaalRondeWij = pntWij + roemWij;
             let totaalRondeZij = pntZij + roemZij;
-
-			if (dubbelePunten == true) {
-				totaalRondeWij = totaalRondeWij * 2;
-				totaalRondeZij = totaalRondeZij * 2;
-			}
 
             totaleScoreWij += totaalRondeWij;
             totaleScoreZij += totaalRondeZij;
@@ -374,7 +358,6 @@
             document.getElementById('roem-wij').value = '';
             document.getElementById('score-zij').value = '';
             document.getElementById('roem-zij').value = '';
-            document.getElementById('cb-schoppen').checked = false;
             
             document.getElementById('score-wij').focus();
         }
