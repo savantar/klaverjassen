@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klaverjas Score</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --wij-color: #27ae60;
+            --zij-color: #2980b9;
+            --bg-color: #f5f7fa;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 10px;
+            color: #333;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 10px 0;
+            color: var(--primary-color);
+        }
+
+        /* Scorebord Bovenin */
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .score-box {
+            text-align: center;
+            flex: 1;
+        }
+
+        .score-box.wij { color: var(--wij-color); }
+        .score-box.zij { color: var(--zij-color); }
+
+        .score-label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .score-total {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* Invoerformulier */
+        .input-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group.wij label { color: var(--wij-color); font-weight: bold; }
+        .input-group.zij label { color: var(--zij-color); font-weight: bold; }
+
+        label {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            -moz-appearance: textfield;
+        }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        /* Roem Sneltoetsen */
+        .roem-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+		.punten-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .btn-roem, .btn-nat {
+            flex: 1;
+            padding: 6px 0;
+            font-size: 0.85rem;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            max-width: 100px;
+        }
+        
+        .wij .btn-roem { color: var(--wij-color); border-color: #a7f3d0; }
+        .wij .btn-roem:active { background-color: #d1fae5; }
+        
+        .zij .btn-roem { color: var(--zij-color); border-color: #bfdbfe; }
+        .zij .btn-roem:active { background-color: #dbeafe; }
+
+        /* Algemene Knoppen */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--danger-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        /* Tabel met verloop */
+        .table-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        th {
+            background-color: #e2e8f0;
+            padding: 10px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        th.wij-th { border-bottom: 3px solid var(--wij-color); }
+        th.zij-th { border-bottom: 3px solid var(--zij-color); }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 1rem;
+        }
+
+        tr:nth-child(even) td { background-color: #f8fafc; }
+
+        .roem-text {
+            font-size: 0.8rem;
+            color: #718096;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🃏 Klaverjas Teller</h2>
+
+    <!-- Totaalstand -->
+    <div class="score-header">
+        <div class="score-box wij">
+            <div class="score-label">Wij</div>
+            <div id="totaal-wij" class="score-total">0</div>
+        </div>
+        <div class="score-box zij">
+            <div class="score-label">Zij</div>
+            <div id="totaal-zij" class="score-total">0</div>
+        </div>
+    </div>
+
+    <!-- Invoer nieuwe ronde -->
+    <div class="input-container">
+        <div class="input-row">
+            <!-- WIJ INVOER -->
+            <div class="input-group wij">
+                <label for="score-wij">Punten Wij</label>
+                <input type="number" id="score-wij" placeholder="0" inputmode="numeric" onkeyup="berekenPuntenTegenpartij('wij')">
+                <div class="punten-buttons">
+                    <button type="button" class="btn-nat" onclick="partijIsNat('wij')">Nat</button>
+                </div>
+                
+                <label for="roem-wij" style="margin-top: 10px;">Roem Wij</label>
+                <input type="number" id="roem-wij" placeholder="0" inputmode="numeric">
+                <div class="roem-buttons">
+                    <button type="button" class="btn-roem" onclick="voegRoemToe('wij', 20)">+20</button>
+                    <button type="button" class="btn-roem" onclick="voegRoemToe('wij', 50)">+50</button>
+                    <button type="button" class="btn-roem" onclick="voegRoemToe('wij', 100)">+100</button>
+                </div>
+            </div>
+            
+            <!-- ZIJ INVOER -->
+            <div class="input-group zij">
+                <label for="score-zij">Punten Zij</label>
+                <input type="number" id="score-zij" placeholder="0" inputmode="numeric" onkeyup="berekenPuntenTegenpartij('zij')">
+                <div class="punten-buttons">
+                    <button type="button" class="btn-nat" onclick="partijIsNat('zij')">Nat</button>
+                </div>
+                
+                <label for="roem-zij" style="margin-top: 10px;">Roem Zij</label>
+                <input type="number" id="roem-zij" placeholder="0" inputmode="numeric">
+                <div class="roem-buttons">
+                    <button type="button" class="btn-roem" onclick="voegRoemToe('zij', 20)">+20</button>
+                    <button type="button" class="btn-roem" onclick="voegRoemToe('zij', 50)">+50</button>
+                    <button type="button" class="btn-roem" onclick="voegRoemToe('zij', 100)">+100</button>
+                </div>
+            </div>
+        </div>
+        <button class="btn" onclick="voegRondeToe()">Ronde Toevoegen</button>
+    </div>
+
+    <!-- Historie / Slagenverloop -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Rnd</th>
+                    <th class="wij-th" style="width: 23%;">Roem Wij</th>
+                    <th class="wij-th" style="width: 20%;">Score Wij</th>
+                    <th class="zij-th" style="width: 20%;">Score Zij</th>
+                    <th class="zij-th" style="width: 23%;">Roem Zij</th>
+                    <th style="width: 4%;"></th>
+                </tr>
+            </thead>
+            <tbody id="rondes-tabel">
+                <!-- Hier komen de rondes dynamisch te staan -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    	let totaalPunten = 162;
+        let totaleScoreWij = 0;
+        let totaleScoreZij = 0;
+        let rondeTeller = 1;
+
+        // Functie voor de sneltoetsen van de roem
+        function voegRoemToe(team, waarde) {
+            let inputVeld = document.getElementById(`roem-${team}`);
+            let huidigeWaarde = parseInt(inputVeld.value) || 0;
+            inputVeld.value = huidigeWaarde + waarde;
+        }
+
+		function berekenPuntenTegenpartij(teamAanpassing) {
+			let aangepast = (teamAanpassing == 'zij' ? 'score-zij' : 'score-wij');
+			let aanTePassen = (teamAanpassing == 'zij' ? 'score-wij' : 'score-zij');
+			let nieuweScore = parseInt(document.getElementById(aangepast).value);
+			document.getElementById(aanTePassen).value = totaalPunten - nieuweScore;
+		}
+
+		function partijIsNat(team) {
+			
+			let tegenPartij = (team == 'zij' ? 'wij' : 'zij');
+			
+			// bepaal element namen
+			let idPartijNatPunten = "score-" + team;
+			let idPartijNatRoem = "roem-" + team;
+			let idTegenPartijPunten = "score-" + tegenPartij;
+			let idTegenPartijRoem = "roem-" + tegenPartij;
+			
+			// lees waarden
+			let roemPartijNat = parseInt(document.getElementById(idPartijNatRoem).value) || 0;
+			let roemTegenPartij = parseInt(document.getElementById(idTegenPartijRoem).value) || 0;
+			
+			//console.log(team, tegenPartij, roemPartijNat, roemTegenPartij);
+			
+			// schrijf waarden
+			document.getElementById(idTegenPartijRoem).value = roemTegenPartij + roemPartijNat;
+			document.getElementById(idPartijNatRoem).value = 0;
+			document.getElementById(idPartijNatPunten).value = 0;
+			document.getElementById(idTegenPartijPunten).value = totaalPunten;
+		}
+
+        function voegRondeToe() {
+            let pntWij = parseInt(document.getElementById('score-wij').value) || 0;
+            let roemWij = parseInt(document.getElementById('roem-wij').value) || 0;
+            let pntZij = parseInt(document.getElementById('score-zij').value) || 0;
+            let roemZij = parseInt(document.getElementById('roem-zij').value) || 0;
+
+            let totaalRondeWij = pntWij + roemWij;
+            let totaalRondeZij = pntZij + roemZij;
+
+            totaleScoreWij += totaalRondeWij;
+            totaleScoreZij += totaalRondeZij;
+
+            document.getElementById('totaal-wij').innerText = totaleScoreWij;
+            document.getElementById('totaal-zij').innerText = totaleScoreZij;
+
+            let tabel = document.getElementById('rondes-tabel');
+            let nieuweRij = tabel.insertRow(0);
+
+            // Sla de individuele waarden op in de rij via data-attributen zodat we ze later kunnen aftrekken bij verwijderen
+            nieuweRij.dataset.totaalWij = totaalRondeWij;
+            nieuweRij.dataset.totaalZij = totaalRondeZij;
+
+            nieuweRij.innerHTML = `
+                <td><b>${rondeTeller}</b></td>
+                <td><span class="roem-text">${roemWij > 0 ? '+ ' + roemWij : '-'}</span></td>
+                <td><b>${totaalRondeWij}</b></td>
+                <td><b>${totaalRondeZij}</b></td>
+                <td><span class="roem-text">${roemZij > 0 ? '+ ' + roemZij : '-'}</span></td>
+                <td><button class="btn-delete" onclick="verwijderRonde(this)">❌</button></td>
+            `;
+
+            rondeTeller++;
+            
+            // Velden leegmaken
+            document.getElementById('score-wij').value = '';
+            document.getElementById('roem-wij').value = '';
+            document.getElementById('score-zij').value = '';
+            document.getElementById('roem-zij').value = '';
+            
+            document.getElementById('score-wij').focus();
+        }
+
+        function verwijderRonde(button) {
+            // Vraag om bevestiging zodat je niet per ongeluk klikt tijdens het scrollen
+            if (confirm("Weet je zeker dat je deze ronde wilt verwijderen?")) {
+                let rij = button.closest('tr');
+                
+                // Haal de scores van deze specifieke ronde op uit de dataset
+                let minWij = parseInt(rij.dataset.totaalWij);
+                let minZij = parseInt(rij.dataset.totaalZij);
+
+                // Trek ze af van het grote totaal
+                totaleScoreWij -= minWij;
+                totaleScoreZij -= minZij;
+
+                // Update de scoreborden bovenin
+                document.getElementById('totaal-wij').innerText = totaleScoreWij;
+                document.getElementById('totaal-zij').innerText = totaleScoreZij;
+
+                // Verwijder de rij uit de tabel
+                rij.remove();
+            }
+        }
+    </script>
+</body>
+</html>
